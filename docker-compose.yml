@@ -1,0 +1,102 @@
+version: "2"
+services:
+  app:
+    container_name: ba_app
+    restart: always
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    image: registry.beetai.com:5000/monitor_app:1.0
+    ports:
+      - "21000:3000"
+      
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "10m"
+
+    depends_on:
+     - mongo
+    links:
+       - mongo
+
+    environment: 
+      BROKER_HOST: broker.beetai.com
+      BROKER_PORT: 21883
+      DB_HOST: "ba_mongo"
+      DB_PORT: "27017"
+      DB_DATABASE: "ba_svlog"
+
+  sub:
+    container_name: ba_sub
+    restart: always
+    build: 
+      context: ./sub
+      dockerfile: Dockerfile
+    image: registry.beetai.com:5000/monitor_sub:1.0
+      
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "10m"
+
+    depends_on:
+      - mongo
+    links:
+      - mongo
+
+    environment: 
+      BROKER_HOST: broker.beetai.com
+      BROKER_PORT: 21883
+      DB_HOST: "ba_mongo"
+      DB_PORT: "27017"
+      DB_DATABASE: "ba_svlog"
+
+  sub_oem:
+    container_name: ba_sub_oem
+    restart: always
+    build: 
+      context: ./sub_oem
+      dockerfile: Dockerfile
+    image: registry.beetai.com:5000/monitor_sub_oem:1.0
+      
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "10m"
+
+    depends_on:
+      - mongo
+    links:
+      - mongo
+
+    environment: 
+      BROKER_HOST:  "broker.beetai.com" #"123.24.206.120"
+      BROKER_PORT:  "9883" #"21883"
+      BROKER_USERNAME: 'beetai'
+      BROKER_PASSWORD: 'bi2019aA'
+      
+      DB_HOST: "ba_mongo"
+      DB_PORT: "27017"
+      DB_DATABASE: "ba_svlog"
+
+  mongo:
+    container_name: ba_mongo
+    image: mongo
+    restart: always
+    mem_limit: 200m
+    volumes:
+      - data-mongo:/data/db
+
+  mongo1:
+    container_name: ba_mongo1
+    image: mongo
+    restart: always
+    mem_limit: 200m
+    volumes:
+      - data-mongo1:/data/db
+
+volumes:
+  data-mongo:
+  data-mongo1:
+

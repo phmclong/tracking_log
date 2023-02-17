@@ -1,0 +1,35 @@
+version: "2"
+services:
+  app:
+    container_name: ba_svlog
+    restart: always
+    build: 
+      context: .
+      dockerfile: onpremise.dockerfile
+    image: registry.beetai.com:5000/monitor:onpremise_1.0
+    ports:
+      - "21000:3000"
+    
+    depends_on:
+     - mongo
+    links:
+       - mongo
+
+    environment: 
+      BROKER_HOST: broker.beetai.com
+      BROKER_PORT: 21883
+      DB_HOST: "ba_mongo"
+      DB_PORT: "27017"
+      DB_DATABASE: "ba_svlog"
+
+  mongo:
+    container_name: ba_mongo
+    image: mongo
+    restart: always
+    
+    volumes:
+      - data-mongo:/data/db
+
+volumes:
+  data-mongo:
+
